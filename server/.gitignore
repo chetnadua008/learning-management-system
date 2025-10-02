@@ -1,0 +1,17 @@
+# Ignore server-side dependencies
+node_modules/
+
+# Ignore environment variables
+.env
+
+# Ignore logs
+*.log
+
+# Ignore build output (if any)
+dist/
+build/
+
+# Optional: OS and editor junk
+.DS_Store
+Thumbs.db
+.vscode/
