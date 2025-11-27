@@ -9,26 +9,26 @@ dotenv.config({})
 connectDb();
 
 const app = express();
-const PORT = process.env.PORT||3000;
+const PORT = process.env.PORT || 3000;
 
 
 //default middleware
 app.use(express.json())
 app.use(cookieParser())
 app.use(cors({
-    origin:"http://localhost:8080",
-    credentials:true,
+    origin: "http://localhost:5173",
+    credentials: true,
 }))
 
 
-app.use("/api/v1/user",UserRouter)
+app.use("/api/v1/user", UserRouter)
 
-app.get("/home",(req,res)=>{
+app.get("/home", (req, res) => {
     return res.status(200).json({
-        success:true,
-        message:'hi from backend'
+        success: true,
+        message: 'hi from backend'
     })
 })
-app.listen(PORT,()=>{
+app.listen(PORT, () => {
     console.log(`server is running at port ${PORT}`);
 })
