@@ -19,9 +19,9 @@ import {
 } from "@/components/ui/tabs"
 import { useRegisterUserMutation, useLoginUserMutation } from "@/features/api/authApi"
 import { Loader2 } from "lucide-react"
-
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 const Login = () => {
     //state
     const [signupInput, setSignupInput] = useState({ name: "", email: "", password: "" });
@@ -29,7 +29,8 @@ const Login = () => {
 
     const [registerUser, { data: registerData, error: registerError, isLoading: registerIsLoading, isSuccess: registerIsSuccess }] = useRegisterUserMutation();
     const [loginUser, { data: loginData, error: loginError, isLoading: loginIsLoading, isSuccess: loginIsSuccess }] = useLoginUserMutation();
-    //get data 
+
+    const navigate = useNavigate();
 
     //update state when form data change
     //bonus step: convert email to lowercase 
@@ -44,15 +45,31 @@ const Login = () => {
         }
     }
 
-    //clicks signup/login button-> console the state
-    const submitHandler = async (type) => {
+    //clicks signup/login button-> triggers respective mutation
+    const handleRegistration = async (type) => {
         const inputData = type === 'login' ? loginInput : signupInput;
         const action = type === 'login' ? loginUser : registerUser;
         await action(inputData);
     };
 
+    useEffect(() => {
+        if (registerData && registerIsSuccess) {
+            toast.success(registerData.message || "signup successful");
+        }
+        if (registerError) {
+            toast.error(registerError.data.message || "signup failed");
+        }
+        if (loginData && loginIsSuccess) {
+            toast.success(loginData.message || "login successful");
+            navigate("/");
+
+        }
+        if (loginError) {
+            toast.error(loginError.data.message || "login failed");
+        }
+    }, [registerData, loginData, registerIsLoading, loginIsLoading, registerError, loginError]);
     return (
-        <div className="flex justify-center min-h-screen bg-gray-100">
+        <div className="flex justify-center min-h-screen mt-25 ">
             <div className="flex w-full max-w-sm flex-col gap-6">
 
                 <Tabs defaultValue="login">
@@ -84,7 +101,7 @@ const Login = () => {
                             </CardContent>
 
                             <CardFooter>
-                                <Button disabled={loginIsLoading} onClick={() => submitHandler("login")}>
+                                <Button disabled={loginIsLoading} onClick={() => handleRegistration("login")}>
                                     {
                                         loginIsLoading ? (
                                             <>
@@ -125,7 +142,7 @@ const Login = () => {
 
                             </CardContent>
                             <CardFooter>
-                                <Button disabled={registerIsLoading} onClick={() => submitHandler("signup")}>
+                                <Button disabled={registerIsLoading} onClick={() => handleRegistration("signup")}>
                                     {
                                         registerIsLoading ? (
                                             <>

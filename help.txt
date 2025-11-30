@@ -1,0 +1,126 @@
+React Router DOM does.
+
+It is a library that fakes navigation. It watches the URL bar, and when the URL changes, it instantly swaps the component on the screen without refreshing the page.
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+
+// Imagine these are your components
+import Home from "./Home";
+import Login from "./Login";
+import CoursePage from "./CoursePage";
+
+function App() {
+  return (
+    // 1. The Wrapper
+    <BrowserRouter>
+    
+      {/* Navigation Menu */}
+      <nav>
+        {/* 4. The Links (Clicking these changes URL silently) */}
+        <Link to="/">Home</Link>
+        <Link to="/login">Login</Link>
+      </nav>
+
+      {/* 2. The Switchboard */}
+      <Routes>
+        {/* 3. The Rules */}
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/courses" element={<CoursePage />} />
+      </Routes>
+      
+    </BrowserRouter>
+  );
+}
+in a layout - some things are fized (Nav Bar) and some are dynamic(Home/courses/login page)
+The Dynamic Content (Home, Login, etc.) that changes based on the URL.
+
+import { Outlet } from 'react-router-dom';
+import Navbar from './Navbar';
+import Footer from './Footer';
+
+const MainLayout = () => {
+  return (
+    <div className="app-container">
+      {/* 1. The Stuff that stays fixed */}
+      <Navbar />
+      
+      {/* 2. The Dynamic Hole */}
+      {/* React Router will dump the current page's content right here */}
+      <div className="content-area">
+        <Outlet /> 
+      </div>
+
+      {/* 3. The Stuff that stays fixed */}
+      <Footer />
+    </div>
+  );
+};
+
+export default MainLayout;
+
+we use this layout in App.jsx 
+
+
+
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+// 1. Import Layouts
+import MainLayout from './layout/MainLayout';
+
+// 2. Import Pages (These are the components we will build)
+import HomePage from './pages/student/HomePage';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Courses from './pages/student/Courses';
+import MyProfile from './pages/student/MyProfile';
+import NotFound from './pages/NotFound'; // Good practice to have this
+
+// 3. Import Global UI Components
+import { Toaster } from 'react-hot-toast'; // or from "@/components/ui/toaster" if using Shadcn
+
+const App = () => {
+  return (
+    <BrowserRouter>
+      {/* GLOBAL COMPONENTS: These live outside Routes so they work everywhere */}
+      <Toaster position="top-center" reverseOrder={false} />
+
+      <Routes>
+        
+        {/* --- PUBLIC ROUTES (No Navbar, No Sidebar) --- */}
+        {/* We want Login/Signup to look clean, so they are outside MainLayout */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+
+
+        {/* --- PROTECTED / MAIN ROUTES (Has Navbar & Footer) --- */}
+        {/* Everything inside here gets the "Sandwich" treatment from MainLayout */}
+        <Route path="/" element={<MainLayout />}>
+          
+          {/* "index" means this is the default page when path is "/" */}
+          <Route index element={<HomePage />} /> 
+          
+          <Route path="courses" element={<Courses />} />
+          <Route path="my-profile" element={<MyProfile />} />
+          
+          {/* You can add nested routes for watching a course later */}
+          {/* <Route path="course/:courseId" element={<CoursePlayer />} /> */}
+          
+        </Route>
+
+
+        {/* --- ADMIN ROUTES (Optional Future Plan) --- */}
+        {/* You might want a different layout for Admin later! */}
+        {/* <Route path="/admin" element={<AdminLayout />}> ... </Route> */}
+
+
+        {/* --- CATCH ALL (404) --- */}
+        {/* If user types a random URL, show this page */}
+        <Route path="*" element={<NotFound />} />
+
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
+export default App;
