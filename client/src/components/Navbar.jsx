@@ -27,6 +27,7 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet"
 import { Separator } from '@radix-ui/react-dropdown-menu'
+import { Link } from 'react-router-dom'
 
 const Navbar = () => {
     const user = true;
@@ -54,10 +55,10 @@ const Navbar = () => {
                                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                                 <DropdownMenuGroup>
                                     <DropdownMenuItem>
-                                        My Learning
+                                        <Link to='my-learning'>My Learning</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem>
-                                        Edit Profile
+                                        <Link to='profile'>Edit Profile</Link>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem>
                                         Log out
