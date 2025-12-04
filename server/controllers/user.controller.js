@@ -1,6 +1,7 @@
 import { User } from "../models/user.model.js"
 import bcrypt from "bcryptjs"
 import { generateToken } from "../utils/generateToken.js";
+import { deleteMedia, uploadMedia } from "../utils/cloudinary.js"
 export const register = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -73,3 +74,80 @@ export const login = async (req, res) => {
         })
     }
 }
+export const logout = async (req, res) => {
+    try {
+        return res.status(200).cookie("token", "", { maxAge: 0 }).json({
+            message: "Logged out successfully",
+            success: true,
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Failed to logout",
+            success: false,
+        })
+    }
+}
+export const getUserProfile = async (req, res) => {
+    try {
+        const userId = req.id;
+        const user = await User.findById(userId).select("-password");
+        if (!user) {
+            return res.status(404).json({
+                message: "User Not Found",
+                success: false,
+            })
+        }
+        return res.status(200).json({
+            user,
+            success: true,
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to load User"
+        })
+    }
+}
+
+//editing profile logic
+export const updateProfile = async (req, res) => {
+    try {
+        const userId = req.id;
+        const { name } = req.body;
+        const profilePhoto = req.file;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({
+                message: "User Not Found",
+                success: false,
+            })
+        }
+        //extract public id of profile if it exists in database/cloudinary
+        if (user.photoUrl) {
+            const publicId = user.photoUrl.split("/").pop().split(".")[0];
+            deleteMedia(publicId);
+        }
+
+        const cloudResponse = await uploadMedia(profilePhoto.path);
+        const photoUrl = cloudResponse.secure_url;
+        const updatedData = { name, photoUrl };
+
+        const updatedUser = await User.findByIdAndUpdate(userId, updatedData, { new: true }).select("-password");
+        return res.status(200).json({
+            success: true,
+            user: updatedUser,
+            message: "Profile updated successfully"
+        })
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to Update profile"
+        })
+    }
+}
+
