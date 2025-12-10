@@ -12,14 +12,13 @@ import { Loader2 } from 'lucide-react'
 import Course from './Course'
 import { useLoadUserQuery, useUpdateUserMutation } from '../../features/api/authApi'
 import { toast } from 'sonner'
+import LoadingSpinner from '@/components/LoadingSpinner'
 const Profile = () => {
     const [name, setName] = useState("");
     const [profilePhoto, setProfilePhoto] = useState("");
     const { data, isLoading, refetch } = useLoadUserQuery();
     const [updateUser, { data: updateUserData, isLoading: updateUserIsLoading, isSuccess, isError, error }] = useUpdateUserMutation();
-
-
-    
+    useEffect(() => { refetch() }, []);
     useEffect(() => {
         if (isSuccess) {
             refetch();
@@ -27,7 +26,6 @@ const Profile = () => {
         }
         if (isError) {
             toast.error(error.message || "Profile updation Failed");
-
         }
     }, [
         error, updateUserIsLoading, updateUserData, isError
@@ -42,7 +40,8 @@ const Profile = () => {
         formData.append("profilePhoto", profilePhoto);
         await updateUser(formData);
     }
-    if (isLoading) return <h1>Profile Loading...</h1>
+    if (isLoading) return <LoadingSpinner />
+
     const { user } = data;
 
     return (

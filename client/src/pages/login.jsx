@@ -62,7 +62,6 @@ const Login = () => {
         if (loginData && loginIsSuccess) {
             toast.success(loginData.message || "login successful");
             navigate("/");
-
         }
         if (loginError) {
             toast.error(loginError.data.message || "login failed");
