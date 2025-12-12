@@ -11,16 +11,15 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import { Link } from 'react-router-dom'
+import { useCreatorCoursesQuery } from '@/features/api/courseApi'
+import { Edit } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
 
 const CourseTable = () => {
-    const courses = [
-        {
-            title: "Learn React, Best course available in market",
-            price: "499 Rs.",
-            status: "Published",
-            action: "Edit",
-        },
-    ]
+    const { data, isLoading } = useCreatorCoursesQuery();
+    if (isLoading) return <h1>Loading</h1>
+    const courses = data?.courses || [];
+    console.log(courses);
     return (
         <div>
             <Button asChild className="text-md">
@@ -40,11 +39,11 @@ const CourseTable = () => {
                 </TableHeader>
                 <TableBody>
                     {courses.map((course) => (
-                        <TableRow key={course.title}>
-                            <TableCell className="font-medium text-bold">{course.title}</TableCell>
-                            <TableCell>{course.price}</TableCell>
-                            <TableCell>{course.status}</TableCell>
-                            <TableCell className="text-right font-bold">{course.action}</TableCell>
+                        <TableRow key={course._id}>
+                            <TableCell className="font-medium text-bold">{course.courseTitle}</TableCell>
+                            <TableCell>{course.coursePrice ? course.coursePrice : "NA"}</TableCell>
+                            <TableCell><Badge>{course.isPublished ? "Published" : "Draft"}</Badge></TableCell>
+                            <TableCell className="text-right font-bold"><Button size='sm' variant='ghost'><Edit /></Button></TableCell>
                         </TableRow>
                     ))}
                 </TableBody>

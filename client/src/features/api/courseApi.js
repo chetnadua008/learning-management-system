@@ -8,15 +8,26 @@ export const courseApi = createApi({
         baseUrl: COURSE_API,
         credentials: 'include'
     }),
+    tagTypes: ["creator-courses-data"], //tag on data
     endpoints: (builder) => ({
+        creatorCourses: builder.query({
+            query: () => ({
+                url: '',
+                method: 'GET',
+            }),
+            //fetched data is linked to "creator-courses-data"
+            providesTags: ['creator-courses-data']
+        }),
         createCourse: builder.mutation({
             query: (inputData) => ({
                 url: '',
                 method: 'POST',
                 body: inputData,
-            })
+            }),
+            //mark the "creator-courses-data" as outdated
+            invalidatesTags: ['creator-courses-data']
         }),
     })
 });
 //hooks
-export const { useCreateCourseMutation } = courseApi;
+export const { useCreateCourseMutation, useCreatorCoursesQuery } = courseApi;

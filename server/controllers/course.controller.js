@@ -12,14 +12,14 @@ export const createCourse = async (req, res) => {
         const course = await Course.create({
             courseTitle,
             category,
-            creator:req.id, //user id
+            creator: req.id, //user id
         });
         return res.status(201).json({
             course,
-            message:"Course created successfully",
-            success:true,
+            message: "Course created successfully",
+            success: true,
         })
-        
+
 
     } catch (error) {
         console.log(error);
@@ -28,4 +28,28 @@ export const createCourse = async (req, res) => {
             success: false,
         })
     }
+}
+
+export const getCreatorCourse = async (req, res) => {
+    try {
+        const userId = req.id;
+        const courses = await Course.find({ creator: userId });
+        if (!courses) {
+            return res.status(404).json({
+                message: "Courses not found!",
+                courses: [],
+            })
+        }
+        return res.status(200).json({
+            message: "Courses Found",
+            courses
+        })
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Failed to fetch courses",
+            success: false,
+        })
+    }
+
 }
