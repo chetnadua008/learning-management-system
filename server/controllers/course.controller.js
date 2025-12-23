@@ -1,5 +1,5 @@
 import { Course } from "../models/course.model.js"
-
+import { deleteMedia, uploadMedia } from '../utils/cloudinary.js'
 export const createCourse = async (req, res) => {
     try {
         const { courseTitle, category } = req.body;
@@ -52,4 +52,40 @@ export const getCreatorCourse = async (req, res) => {
         })
     }
 
+}
+export const editCourse = async (req, res) => {
+    try {
+        const { courseTitle, subTitle, description, category, courseLevel, coursePrice } = req.body;
+        const newThumbnail = req.file;      //seperate by Multer
+        const courseId = req.params.courseId;
+        let course = await Course.findById(courseId);
+        if (!course) {
+            return res.status(404).json({
+                message: "Course not found"
+            })
+        }
+        let newThumnailUpload;
+        if (newThumbnail) {
+            if (course.courseThumbnail) {
+                const publicId = course.courseThumbnail.split('/').pop().split(".")[0];
+                await deleteMedia(publicId)     //delete old image
+            }
+            //upload new thumbnail on cloudinary
+            newThumnailUpload = await uploadMedia(newThumbnail.path)
+        }
+
+        const updatedData = { courseTitle, subTitle, description, category, courseLevel, coursePrice, courseThumbnail: newThumnailUpload.secure_url }
+        course = await Course.findByIdAndUpdate(courseId, updatedData, { new: true });        //new:true course= returns updated course (elese old course)
+        return res.status(200).json({
+            course,
+            message: "Course updated success"
+        })
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Failed to edit courses",
+            success: false,
+        })
+    }
 }

@@ -4,12 +4,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useEditCourseMutation } from '@/features/api/courseApi'
 import { Description } from '@radix-ui/react-dialog'
 import { Divide, Loader2 } from 'lucide-react'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
+import { toast } from 'sonner'
 const CourseTab = () => {
+    const [editCourse, { data, isLoading, isSuccess, error }] = useEditCourseMutation();
     //hook 
     const [input, setInput] = useState({
         courseTitle: "",
@@ -22,6 +25,9 @@ const CourseTab = () => {
     });
     const [previewThumbnail, setPreviewThumbnail] = useState('');
     const navigate = useNavigate();
+    const params = useParams();     //app.jsx /course/:courseId same name to receive
+    const courseId = params.courseId;
+
     //handler
     const changeEventHandler = (e) => {
         const { name, value } = e.target;
@@ -44,9 +50,25 @@ const CourseTab = () => {
             fileReader.readAsDataURL(file);
         }
     }
-    const updateCourseHandler = () => {
-        console.log(input);
+    const updateCourseHandler = async () => {
+        const formData = new FormData();
+        formData.append("courseTitle", input.courseTitle);
+        formData.append("subTitle", input.subTitle);
+        formData.append("description", input.description);
+        formData.append("category", input.category);
+        formData.append("courseLevel", input.courseLevel);
+        formData.append("coursePrice", input.coursePrice);
+        formData.append("courseThumbnail", input.courseThumbnail);
+        await editCourse({ formData, courseId });
     }
+    useEffect(() => {
+        if (isSuccess) {
+            toast.success(data.message || "Course updated");
+        }
+        if (error) {
+            toast.error(error.data.message || "Failed to updated")
+        }
+    }, [isSuccess, error,])
     const categories = [
         "Next JS",
         "Data Science",
@@ -67,7 +89,6 @@ const CourseTab = () => {
     ]
 
     const isPublish = true;
-    const isLoading = false;
     return (
         <Card>
             <CardHeader className='flex flex-row justify-between'>

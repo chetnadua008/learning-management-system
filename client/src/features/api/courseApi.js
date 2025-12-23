@@ -27,7 +27,17 @@ export const courseApi = createApi({
             //mark the "creator-courses-data" as outdated
             invalidatesTags: ['creator-courses-data']
         }),
+        editCourse: builder.mutation({
+            query: ({ formData, courseId }) => ({
+                url: `/${courseId}`,
+                method: "PUT",
+                body: formData,
+            }),
+            invalidatesTags: ['creator-courses-data']
+
+        })
     })
 });
+
 //hooks
-export const { useCreateCourseMutation, useCreatorCoursesQuery } = courseApi;
+export const { useCreateCourseMutation, useCreatorCoursesQuery, useEditCourseMutation } = courseApi;
