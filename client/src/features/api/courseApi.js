@@ -35,9 +35,15 @@ export const courseApi = createApi({
             }),
             invalidatesTags: ['creator-courses-data']
 
+        }),
+        getCourseById: builder.query({
+            query: (courseId) => ({
+                url: `/${courseId}`,
+                method: "GET"
+            })
         })
     })
 });
 
 //hooks
-export const { useCreateCourseMutation, useCreatorCoursesQuery, useEditCourseMutation } = courseApi;
+export const { useCreateCourseMutation, useCreatorCoursesQuery, useEditCourseMutation, useGetCourseByIdQuery } = courseApi;

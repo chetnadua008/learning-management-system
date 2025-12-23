@@ -1,10 +1,11 @@
+import LoadingSpinner from '@/components/LoadingSpinner'
 import RichTextEditor from '@/components/RichTextEditor'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useEditCourseMutation } from '@/features/api/courseApi'
+import { useEditCourseMutation, useGetCourseByIdQuery } from '@/features/api/courseApi'
 import { Description } from '@radix-ui/react-dialog'
 import { Divide, Loader2 } from 'lucide-react'
 import React, { useEffect } from 'react'
@@ -12,6 +13,29 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 const CourseTab = () => {
+    const params = useParams();     //app.jsx /course/:courseId same name to receive
+    const courseId = params.courseId;
+    const { data: courseByIdData, isLoading: courseByIdIsLoading } = useGetCourseByIdQuery(courseId, { refetchOnMountOrArgChange: true });
+    useEffect(() => {
+        const course = courseByIdData?.course;
+        if (course) {
+            setInput({
+                courseTitle: course.courseTitle, // specific
+                subTitle: course.subTitle,       // specific
+                description: course.description,
+                category: course.category,
+                courseLevel: course.courseLevel,
+                coursePrice: course.coursePrice,
+                courseThumbnail: course.courseThumbnail // or course.courseThumbnail.url
+            });
+            if (course.courseThumbnail) {
+                setPreviewThumbnail(course.courseThumbnail);
+            }
+
+        }
+
+    }, [courseByIdData])
+
     const [editCourse, { data, isLoading, isSuccess, error }] = useEditCourseMutation();
     //hook 
     const [input, setInput] = useState({
@@ -25,8 +49,6 @@ const CourseTab = () => {
     });
     const [previewThumbnail, setPreviewThumbnail] = useState('');
     const navigate = useNavigate();
-    const params = useParams();     //app.jsx /course/:courseId same name to receive
-    const courseId = params.courseId;
 
     //handler
     const changeEventHandler = (e) => {
@@ -52,13 +74,13 @@ const CourseTab = () => {
     }
     const updateCourseHandler = async () => {
         const formData = new FormData();
-        formData.append("courseTitle", input.courseTitle);
-        formData.append("subTitle", input.subTitle);
-        formData.append("description", input.description);
-        formData.append("category", input.category);
-        formData.append("courseLevel", input.courseLevel);
-        formData.append("coursePrice", input.coursePrice);
-        formData.append("courseThumbnail", input.courseThumbnail);
+        if (input.courseTitle) formData.append("courseTitle", input.courseTitle);
+        if (input.subTitle) formData.append("subTitle", input.subTitle);
+        if (input.description) formData.append("description", input.description);
+        if (input.category) formData.append("category", input.category);
+        if (input.courseLevel) formData.append("courseLevel", input.courseLevel);
+        if (input.coursePrice) formData.append("coursePrice", input.coursePrice);
+        if (input.courseThumbnail) formData.append("courseThumbnail", input.courseThumbnail);
         await editCourse({ formData, courseId });
     }
     useEffect(() => {
@@ -89,6 +111,12 @@ const CourseTab = () => {
     ]
 
     const isPublish = true;
+    if (courseByIdIsLoading) {
+        return (
+            <h1>Loading.....</h1> 
+
+        );
+    }
     return (
         <Card>
             <CardHeader className='flex flex-row justify-between'>

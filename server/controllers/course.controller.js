@@ -64,17 +64,18 @@ export const editCourse = async (req, res) => {
                 message: "Course not found"
             })
         }
-        let newThumnailUpload;
+        const updatedData = { courseTitle, subTitle, description, category, courseLevel, coursePrice };
+        let newThumbnailUpload;
         if (newThumbnail) {
             if (course.courseThumbnail) {
                 const publicId = course.courseThumbnail.split('/').pop().split(".")[0];
                 await deleteMedia(publicId)     //delete old image
             }
             //upload new thumbnail on cloudinary
-            newThumnailUpload = await uploadMedia(newThumbnail.path)
+            newThumbnailUpload = await uploadMedia(newThumbnail.path)
+            updatedData.courseThumbnail = newThumbnailUpload.secure_url;
         }
 
-        const updatedData = { courseTitle, subTitle, description, category, courseLevel, coursePrice, courseThumbnail: newThumnailUpload.secure_url }
         course = await Course.findByIdAndUpdate(courseId, updatedData, { new: true });        //new:true course= returns updated course (elese old course)
         return res.status(200).json({
             course,
@@ -85,6 +86,25 @@ export const editCourse = async (req, res) => {
         console.log(error);
         return res.status(500).json({
             message: "Failed to edit courses",
+            success: false,
+        })
+    }
+}
+export const getCourseById = async (req, res) => {
+    try {
+        const courseId = req.params.courseId;
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return res.status(404).json({
+                message: "Course not found"
+            });
+        }
+        return res.status(200).json({ course })
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Failed to get Course by id",
             success: false,
         })
     }

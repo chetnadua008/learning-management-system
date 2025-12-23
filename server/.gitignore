@@ -1,6 +1,7 @@
 # Ignore server-side dependencies
 node_modules/
-
+#ignore multer upload files
+uploads/
 # Ignore environment variables
 .env
 
