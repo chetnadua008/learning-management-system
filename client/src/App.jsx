@@ -11,10 +11,12 @@ import Sidebar from "./pages/admin/Sidebar"
 import Dashboard from "./pages/admin/Dashboard"
 import CourseTable from "./pages/admin/course/CourseTable"
 import AddCourse from "./pages/admin/course/AddCourse"
+import EditCourse from "./pages/admin/course/EditCourse"
 const appRouter = createBrowserRouter([
   {
     path: "/",
     element: <MainLayout />,
+    // children render in mainlayout outlet base on current path
     children: [
       {
         path: "/",
@@ -43,6 +45,7 @@ const appRouter = createBrowserRouter([
       {
         path: "admin",
         element: <Sidebar />,
+        //children render in sidebar outlet
         children: [
           {
             path: 'dashboard',
@@ -55,6 +58,11 @@ const appRouter = createBrowserRouter([
           {
             path: 'course/create',
             element: <AddCourse />
+          },
+          {
+            //dynamic route (courseId is dynamic)
+            path: 'course/:courseId',
+            element: <EditCourse />
           }
         ]
       },

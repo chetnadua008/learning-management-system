@@ -14,9 +14,10 @@ import { Link } from 'react-router-dom'
 import { useCreatorCoursesQuery } from '@/features/api/courseApi'
 import { Edit } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
-
+import { useNavigate } from 'react-router-dom';
 const CourseTable = () => {
     const { data, isLoading } = useCreatorCoursesQuery();
+    const navigate = useNavigate();
     if (isLoading) return <h1>Loading</h1>
     const courses = data?.courses || [];
     console.log(courses);
@@ -43,7 +44,7 @@ const CourseTable = () => {
                             <TableCell className="font-medium text-bold">{course.courseTitle}</TableCell>
                             <TableCell>{course.coursePrice ? course.coursePrice : "NA"}</TableCell>
                             <TableCell><Badge>{course.isPublished ? "Published" : "Draft"}</Badge></TableCell>
-                            <TableCell className="text-right font-bold"><Button size='sm' variant='ghost'><Edit /></Button></TableCell>
+                            <TableCell className="text-right font-bold"><Button size='sm' variant='ghost' onClick={() => navigate(`${course._id}`)}><Edit /></Button></TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
