@@ -15,12 +15,13 @@ const CreateLecture = () => {
     const courseId = params.courseId;
     const navigate = useNavigate();
     const [createLecture, { data, error, isSuccess, isLoading }] = useCreateLectureMutation();
-    const { data: lectureData, isLoading: isLectureLoading, isSuccess: isLectureSuccess, isError: lectureError } = useGetCourseLectureQuery(courseId);
+    const { data: lectureData, isLoading: isLectureLoading, isSuccess: isLectureSuccess, isError: lectureError, refetch } = useGetCourseLectureQuery(courseId);
     const createLectureHandler = async () => {
         await createLecture({ lectureTitle, courseId });
     }
     useEffect(() => {
         if (isSuccess) {
+            refetch();
             toast.success(data.message || "Lecture created successfully")
         }
         if (error) {

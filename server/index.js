@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import connectDb from "./database/dbConnect.js";
 import UserRouter from './routes/user.route.js';
 import CourseRouter from "./routes/course.route.js";
+import MediaRouter from "./routes/media.route.js"
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 dotenv.config({})
@@ -24,6 +25,7 @@ app.use(cors({
 //apis
 app.use("/api/v1/user", UserRouter)
 app.use("/api/v1/course", CourseRouter)
+app.use("/api/v1/media", MediaRouter)
 
 app.get("/home", (req, res) => {
     return res.status(200).json({
