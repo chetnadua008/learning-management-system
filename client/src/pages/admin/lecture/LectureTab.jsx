@@ -4,19 +4,26 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
 import { Switch } from '@/components/ui/switch'
+import { useEditLectureMutation } from '@/features/api/courseApi'
 import axios from 'axios'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 const mediaApi = 'http://localhost:8080/api/v1/media'
 const LectureTab = () => {
+
+    const params = useParams();
+    const { courseId, lectureId } = params;
     //state variables
-    const [title, setTitle] = useState("");
+    const [lectureTitle, setLectureTitle] = useState("");
     const [uploadVideoInfo, setUploadVideoInfo] = useState(null);
     const [isFree, setIsFree] = useState(false);
     const [mediaProgress, setMediaProgress] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [buttonDisable, setButtonDisable] = useState(true);
 
+    //mutation 
+    const [editLecture, { data, isLoading, error, isSuccess }] = useEditLectureMutation();
 
     //handler
     const fileChangeHandler = async (e) => {
@@ -45,6 +52,19 @@ const LectureTab = () => {
             }
         }
     }
+
+    const editLectureHandler = async () => {
+        await editLecture({ lectureTitle, videoInfo: uploadVideoInfo, courseId, lectureId, isPreviewFree: isFree })
+    }
+    useEffect(
+        () => {
+            if (isSuccess) {
+                toast.success(data?.message || "Lecture edit success")
+            }
+            if (error) {
+                toast.error(error?.data?.message || "Lecture edit fail")
+            }
+        }, [error, isSuccess])
     return (
         <Card className='py-5'>
             <CardHeader className='flex justify-between'>
@@ -68,6 +88,9 @@ const LectureTab = () => {
                     <Input
                         placeholder='introduction to javascript'
                         type='text'
+                        value={lectureTitle}
+                        onChange={(e) => setLectureTitle(e.target.value)}
+
                     />
                 </div>
                 <div>
@@ -89,11 +112,11 @@ const LectureTab = () => {
                 }
 
                 <div className='flex items-center space-x-2'>
-                    <Switch id="airplane-mode" />
+                    <Switch id="airplane-mode" onClick={(e) => setIsFree(e.target.value === 'on' ? true : false)} />
                     <Label>Is this video free</Label>
                 </div>
                 <div>
-                    <Button disabled={buttonDisable}>Update Lecture</Button>
+                    <Button disabled={buttonDisable} onClick={editLectureHandler}>Update Lecture</Button>
                 </div>
             </CardContent>
         </Card>
