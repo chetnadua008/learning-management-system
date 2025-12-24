@@ -15,28 +15,6 @@ import { toast } from 'sonner'
 const CourseTab = () => {
     const params = useParams();     //app.jsx /course/:courseId same name to receive
     const courseId = params.courseId;
-    const { data: courseByIdData, isLoading: courseByIdIsLoading } = useGetCourseByIdQuery(courseId, { refetchOnMountOrArgChange: true });
-    useEffect(() => {
-        const course = courseByIdData?.course;
-        if (course) {
-            setInput({
-                courseTitle: course.courseTitle, // specific
-                subTitle: course.subTitle,       // specific
-                description: course.description,
-                category: course.category,
-                courseLevel: course.courseLevel,
-                coursePrice: course.coursePrice,
-                courseThumbnail: course.courseThumbnail // or course.courseThumbnail.url
-            });
-            if (course.courseThumbnail) {
-                setPreviewThumbnail(course.courseThumbnail);
-            }
-
-        }
-
-    }, [courseByIdData])
-
-    const [editCourse, { data, isLoading, isSuccess, error }] = useEditCourseMutation();
     //hook 
     const [input, setInput] = useState({
         courseTitle: "",
@@ -47,6 +25,27 @@ const CourseTab = () => {
         coursePrice: "",
         courseThumbnail: "",
     });
+    const { data: courseByIdData, isLoading: courseByIdIsLoading, isSuccess: courseByIdIsSuccess } = useGetCourseByIdQuery(courseId, { refetchOnMountOrArgChange: true });
+    useEffect(() => {
+        const course = courseByIdData?.course;
+        if (course) {
+            setInput({
+                courseTitle: course.courseTitle,
+                subTitle: course.subTitle,
+                description: course.description,
+                category: course.category,
+                courseLevel: course.courseLevel,
+                coursePrice: course.coursePrice,
+                courseThumbnail: course.courseThumbnail
+            });
+            if (course.courseThumbnail) {
+                setPreviewThumbnail(course.courseThumbnail);
+            }
+        }
+
+    }, [courseByIdData, courseByIdIsSuccess])
+
+    const [editCourse, { data, isLoading, isSuccess, error }] = useEditCourseMutation();
     const [previewThumbnail, setPreviewThumbnail] = useState('');
     const navigate = useNavigate();
 
@@ -111,10 +110,9 @@ const CourseTab = () => {
     ]
 
     const isPublish = true;
-    if (courseByIdIsLoading) {
+    if (courseByIdIsLoading || !courseByIdData) {
         return (
-            <h1>Loading.....</h1> 
-
+            <h1>Loading.....</h1>
         );
     }
     return (
@@ -174,7 +172,7 @@ const CourseTab = () => {
                     <div className='flex items-center gap-5'>
                         <div>
                             <Label>Category</Label>
-                            <Select onValueChange={selectCategory}>
+                            <Select value={input.category} onValueChange={selectCategory}>
                                 <SelectTrigger className="w-[180px]">
                                     <SelectValue placeholder="Select a Category" />
                                 </SelectTrigger>
@@ -182,7 +180,7 @@ const CourseTab = () => {
                                     <SelectGroup>
                                         <SelectLabel>Categories</SelectLabel>
                                         {
-                                            categories.map((cat) => <SelectItem value={cat}>{cat}</SelectItem>
+                                            categories.map((cat) => <SelectItem key={cat} value={cat}>{cat}</SelectItem>
                                             )
                                         }
                                     </SelectGroup>
@@ -191,7 +189,7 @@ const CourseTab = () => {
                         </div>
                         <div>
                             <Label>Course Level</Label>
-                            <Select onValueChange={selectCourseLevel}>
+                            <Select value={input.courseLevel} onValueChange={selectCourseLevel}>
                                 <SelectTrigger className="w-[180px]">
                                     <SelectValue placeholder="Select Course Level" />
                                 </SelectTrigger>
@@ -199,7 +197,7 @@ const CourseTab = () => {
                                     <SelectGroup>
                                         <SelectLabel>Level</SelectLabel>
                                         {
-                                            levels.map((level) => <SelectItem value={level}>{level}</SelectItem>
+                                            levels.map((level) => <SelectItem key={level} value={level}>{level}</SelectItem>
                                             )
                                         }
                                     </SelectGroup>
