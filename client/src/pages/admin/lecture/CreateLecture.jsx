@@ -28,7 +28,7 @@ const CreateLecture = () => {
             toast.error(error.data.message || "cant create lecture")
         }
     }, [isSuccess, error])
-    if (isLectureSuccess) console.log(lectureData)
+
     return (
         <div className='flex-1 mx-10'>
             <div className=''>

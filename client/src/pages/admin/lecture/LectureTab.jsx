@@ -4,8 +4,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Progress } from '@/components/ui/progress'
 import { Switch } from '@/components/ui/switch'
-import { useEditLectureMutation } from '@/features/api/courseApi'
+import { useEditLectureMutation, useRemoveLectureMutation } from '@/features/api/courseApi'
 import axios from 'axios'
+import { Loader2 } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -24,7 +25,7 @@ const LectureTab = () => {
 
     //mutation 
     const [editLecture, { data, isLoading, error, isSuccess }] = useEditLectureMutation();
-
+    const [removeLecture, { data: removeData, error: removeLectureError, isLoading: removeLoading, isSuccess: removeLectureIsSuccess }] = useRemoveLectureMutation();
     //handler
     const fileChangeHandler = async (e) => {
 
@@ -56,6 +57,9 @@ const LectureTab = () => {
     const editLectureHandler = async () => {
         await editLecture({ lectureTitle, videoInfo: uploadVideoInfo, courseId, lectureId, isPreviewFree: isFree })
     }
+    const removeLectureHandler = async () => {
+        removeLecture(lectureId)
+    }
     useEffect(
         () => {
             if (isSuccess) {
@@ -65,6 +69,11 @@ const LectureTab = () => {
                 toast.error(error?.data?.message || "Lecture edit fail")
             }
         }, [error, isSuccess])
+    useEffect(() => {
+        if (removeLectureIsSuccess) {
+            toast.success(removeData.message)
+        }
+    }, [removeLectureIsSuccess, removeLectureError])
     return (
         <Card className='py-5'>
             <CardHeader className='flex justify-between'>
@@ -77,8 +86,10 @@ const LectureTab = () => {
                     </CardDescription>
                 </div>
                 <div>
-                    <Button variant='destructive'>
-                        Remove Lecture
+                    <Button variant='destructive' disabled={removeLoading} onClick={removeLectureHandler}>
+                        {
+                            removeLoading ? <><Loader2 className='mr-2 h-4 w-4 animate-spin'></Loader2>Please Wait</> : "Remove Lecture"
+                        }
                     </Button>
                 </div>
             </CardHeader>
@@ -116,7 +127,12 @@ const LectureTab = () => {
                     <Label>Is this video free</Label>
                 </div>
                 <div>
-                    <Button disabled={buttonDisable} onClick={editLectureHandler}>Update Lecture</Button>
+                    <Button disabled={buttonDisable || isLoading} onClick={editLectureHandler}>
+                        {
+                            isLoading ? <><Loader2 className='mr-2 h-4 w-4 animate-spin'></Loader2>Please Wait</> : "Update Lecture"
+
+                        }
+                    </Button>
                 </div>
             </CardContent>
         </Card>

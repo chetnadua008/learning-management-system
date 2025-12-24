@@ -8,7 +8,7 @@ export const courseApi = createApi({
         baseUrl: COURSE_API,
         credentials: 'include'
     }),
-    tagTypes: ["creator-courses-data"], //tag on data
+    tagTypes: ["creator-courses-data", "lecture-data"], //tag on data
     endpoints: (builder) => ({
         creatorCourses: builder.query({
             query: () => ({
@@ -54,7 +54,9 @@ export const courseApi = createApi({
             query: (courseId) => ({
                 url: `/${courseId}/lecture`,
                 method: 'GET',
-            })
+            }),
+            providesTags: ['lecture-data']
+
         }),
         editLecture: builder.mutation({
             query: ({ lectureTitle, videoInfo, isPreviewFree, courseId, lectureId }) => ({
@@ -63,8 +65,15 @@ export const courseApi = createApi({
                 body: { lectureTitle, videoInfo, isPreviewFree }
             })
         }),
+        removeLecture: builder.mutation({   //to be called 
+            query: (lectureId) => ({
+                url: `/lecture/${lectureId}`,
+                method: 'DELETE',
+            }),
+            invalidatesTags: ['lecture-data']
+        }),
     })
 });
 
 //hooks
-export const { useCreateCourseMutation, useCreatorCoursesQuery, useEditCourseMutation, useGetCourseByIdQuery, useCreateLectureMutation, useGetCourseLectureQuery, useEditLectureMutation } = courseApi;
+export const { useCreateCourseMutation, useCreatorCoursesQuery, useEditCourseMutation, useGetCourseByIdQuery, useCreateLectureMutation, useGetCourseLectureQuery, useEditLectureMutation, useRemoveLectureMutation } = courseApi;
