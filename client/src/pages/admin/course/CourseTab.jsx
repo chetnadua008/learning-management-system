@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useEditCourseMutation, useGetCourseByIdQuery } from '@/features/api/courseApi'
+import { useEditCourseMutation, useGetCourseByIdQuery, usePublishCourseMutation, useRemoveCourseMutation } from '@/features/api/courseApi'
 import { Description } from '@radix-ui/react-dialog'
 import { Divide, Loader2 } from 'lucide-react'
 import React, { useEffect } from 'react'
@@ -25,7 +25,7 @@ const CourseTab = () => {
         coursePrice: "",
         courseThumbnail: "",
     });
-    const { data: courseByIdData, isLoading: courseByIdIsLoading, isSuccess: courseByIdIsSuccess } = useGetCourseByIdQuery(courseId, { refetchOnMountOrArgChange: true });
+    const { data: courseByIdData, isLoading: courseByIdIsLoading, isSuccess: courseByIdIsSuccess, refetch } = useGetCourseByIdQuery(courseId, { refetchOnMountOrArgChange: true });
     useEffect(() => {
         const course = courseByIdData?.course;
         if (course) {
@@ -44,7 +44,8 @@ const CourseTab = () => {
         }
 
     }, [courseByIdData, courseByIdIsSuccess])
-
+    const [publishCourse, { }] = usePublishCourseMutation();
+    const [removeCourse, { data: removeData, isSuccess: removeIsSuccess, error: removeError }] = useRemoveCourseMutation();
     const [editCourse, { data, isLoading, isSuccess, error }] = useEditCourseMutation();
     const [previewThumbnail, setPreviewThumbnail] = useState('');
     const navigate = useNavigate();
@@ -82,6 +83,33 @@ const CourseTab = () => {
         if (input.courseThumbnail) formData.append("courseThumbnail", input.courseThumbnail);
         await editCourse({ formData, courseId });
     }
+    const publishStatusHandler = async (action) => {
+
+        try {
+            const res = await publishCourse({ courseId, query: action });
+            if (res.data) {
+                refetch();
+                toast.success(res.data.message);
+            }
+        } catch (error) {
+            toast.error("failed to update course status");
+        }
+    }
+    const removeCourseHandler = async () => {
+        try {
+            await removeCourse({ courseId });
+        } catch (error) {
+            toast.error("Failed to remove course");
+        }
+    }
+    useEffect(() => {
+        if (removeIsSuccess) {
+            toast.success(removeData?.message || "course and lectures removed success")
+        }
+        if (removeError) {
+            toast.error(removeError.data.message || "Failed to remove course")
+        }
+    }, [removeIsSuccess, removeData, removeError])
     useEffect(() => {
         if (isSuccess) {
             toast.success(data.message || "Course updated");
@@ -109,7 +137,7 @@ const CourseTab = () => {
         'Advance'
     ]
 
-    const isPublish = true;
+    // const isPublish = true;
     if (courseByIdIsLoading || !courseByIdData) {
         return (
             <h1>Loading.....</h1>
@@ -127,12 +155,12 @@ const CourseTab = () => {
                     </CardDescription>
                 </div>
                 <div className='space-x-2.5'>
-                    <Button variant='outline'>
+                    <Button variant='outline' onClick={() => publishStatusHandler(courseByIdData?.course.isPublished ? "false" : "true")}>
                         {
-                            isPublish ? "Unpublish" : "Publish"
+                            courseByIdData?.course.isPublished ? "Unpublish" : "Publish"
                         }
                     </Button>
-                    <Button>Remove Course</Button>
+                    <Button onClick={removeCourseHandler}>Remove Course</Button>
                 </div>
             </CardHeader>
             <CardContent>

@@ -196,13 +196,48 @@ export const editLecture = async (req, res) => {
             lecture,
             message: "lecture updated successfully"
         })
-
-
     } catch (error) {
         console.log(error);
         return res.status(500).json({
             message: "Failed to edit Lecture",
             success: false,
+        })
+    }
+}
+export const removeCourseAndLectures = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        console.log(courseId);
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return res.status(404).json({
+                message: "The course does not exist",
+                success: false,
+            })
+        }
+        const lectures = course.lectures;
+        await Promise.all(lectures.map(async (lectureId) => {
+            try {
+                const lecture = await Lecture.findByIdAndDelete(lectureId);
+                if (lecture && lecture.publicId) {
+                    await deleteVideo(lecture.publicId);
+                }
+            } catch (err) {
+                console.log(`Failed to delete lecture ${lectureId}`, err);
+            }
+        }));
+
+        await Course.findByIdAndDelete(courseId);
+        return res.status(200).json({
+            message: "Course and all associated lectures deleted successfully",
+            success: true
+        });
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            success: false,
+            message: "failed to remove course"
         })
     }
 }
@@ -223,7 +258,7 @@ export const removeLecture = async (req, res) => {
         //remove lecture reference from course
         const { courseId } = req.params;
         await Course.updateOne(
-            { lecture: lectureId }, //select with given lecture id
+            { lectures: lectureId }, //select with given lecture id
             { $pull: { lectures: lectureId } } //remove lecture id from lecture array
         )
 
@@ -256,6 +291,34 @@ export const getLectureById = async (req, res) => {
         return res.status(500).json({
             message: "Failed to get Lecture by id",
             success: false,
+        })
+    }
+}
+
+//publish and unpublish course
+export const togglePublishCourse = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const { publish } = req.query;  //true or false - action
+        const course = await Course.findById(courseId);
+        if (!course) {
+            return res.status(404).json({
+                message: "Course not found",
+                success: false
+            })
+        }
+        //update course status based on query parameter
+        course.isPublished = publish === "true";
+        await course.save();
+        return res.status(200).json({
+            message: "Course is " + (course.isPublished ? "published" : "unpublished")
+        })
+
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json({
+            message: "Fail to update course status",
+            success: false
         })
     }
 }
