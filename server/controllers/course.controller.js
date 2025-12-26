@@ -180,10 +180,12 @@ export const editLecture = async (req, res) => {
         if (videoInfo.publicId) {
             lecture.publicId = videoInfo.publicId;
         }
-        if (isPreviewFree) {
-            lecture.isPreviewFree = isPreviewFree;
-        }
+
+
+        lecture.isPreviewFree = isPreviewFree;
+
         await lecture.save();
+
         //ensure the course still had the lecture id if it was not already added
         const course = await Course.findById(courseId);
         if (course && !course.lectures.includes(lecture._id)) {

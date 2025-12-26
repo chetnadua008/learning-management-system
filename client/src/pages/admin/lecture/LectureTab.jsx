@@ -123,7 +123,7 @@ const LectureTab = () => {
                 }
 
                 <div className='flex items-center space-x-2'>
-                    <Switch id="airplane-mode" onClick={(e) => setIsFree(e.target.value === 'on' ? true : false)} />
+                    <Switch id="airplane-mode" checked={isFree} onCheckedChange={setIsFree} />
                     <Label>Is this video free</Label>
                 </div>
                 <div>
