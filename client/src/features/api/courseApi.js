@@ -27,6 +27,13 @@ export const courseApi = createApi({
             //mark the "creator-courses-data" as outdated
             invalidatesTags: ['creator-courses-data']
         }),
+        getPublishedCourse: builder.query({
+            query: () => ({
+                url: "/published-courses",
+                method: "GET",
+            }),
+            providesTags: ['published-courses']
+        }),
         editCourse: builder.mutation({
             query: ({ formData, courseId }) => ({
                 url: `/${courseId}`,
@@ -55,7 +62,7 @@ export const courseApi = createApi({
                 url: `/${courseId}?publish=${query}`,
                 method: "PATCH",
             }),
-            invalidatesTags: ['creator-courses-data']
+            invalidatesTags: ['creator-courses-data', 'published-courses']
         }),
         removeCourse: builder.mutation({
             query: ({ courseId }) => ({
@@ -63,14 +70,14 @@ export const courseApi = createApi({
                 method: 'DELETE'
             }
             ),
-            invalidatesTags: ['creator-courses-data']
+            invalidatesTags: ['creator-courses-data', 'published-courses']
         }),
         getCourseLecture: builder.query({
             query: (courseId) => ({
                 url: `/${courseId}/lecture`,
                 method: 'GET',
             }),
-            providesTags: ['lecture-data']
+            providesTags: ['lecture-data'    ]
 
         }),
         editLecture: builder.mutation({
@@ -98,4 +105,4 @@ export const courseApi = createApi({
 });
 
 //hooks
-export const { useCreateCourseMutation, useCreatorCoursesQuery, useEditCourseMutation, useGetCourseByIdQuery, useCreateLectureMutation, useGetCourseLectureQuery, useEditLectureMutation, useRemoveLectureMutation, usePublishCourseMutation, useRemoveCourseMutation, useGetLectureQuery } = courseApi;
+export const { useCreateCourseMutation, useCreatorCoursesQuery, useEditCourseMutation, useGetCourseByIdQuery, useCreateLectureMutation, useGetCourseLectureQuery, useEditLectureMutation, useRemoveLectureMutation, usePublishCourseMutation, useRemoveCourseMutation, useGetLectureQuery, useGetPublishedCourseQuery } = courseApi;
