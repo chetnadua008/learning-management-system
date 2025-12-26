@@ -174,10 +174,10 @@ export const editLecture = async (req, res) => {
         if (lectureTitle) {
             lecture.lectureTitle = lectureTitle;
         }
-        if (videoInfo.videoUrl) {
+        if (videoInfo?.videoUrl) {
             lecture.videoUrl = videoInfo.videoUrl;
         }
-        if (videoInfo.publicId) {
+        if (videoInfo?.publicId) {
             lecture.publicId = videoInfo.publicId;
         }
 
@@ -207,7 +207,7 @@ export const editLecture = async (req, res) => {
 export const removeCourseAndLectures = async (req, res) => {
     try {
         const { courseId } = req.params;
-        console.log(courseId);
+
         const course = await Course.findById(courseId);
         if (!course) {
             return res.status(404).json({
@@ -275,8 +275,9 @@ export const removeLecture = async (req, res) => {
 }
 export const getLectureById = async (req, res) => {
     try {
-        const lectureId = req.params;
-        const lecture = Lecture.findById(lectureId);
+        const { lectureId } = req.params;
+        const lecture = await Lecture.findById(lectureId);
+        // console.log("SERVER LECTURE: " + lecture);
         if (!lecture) {
             return res.status(400).json({
                 message: "Lecture not found",

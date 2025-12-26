@@ -87,8 +87,15 @@ export const courseApi = createApi({
             }),
             invalidatesTags: ['lecture-data']
         }),
+        getLecture: builder.query({
+            query: ({ lectureId }) => ({
+                url: `/lecture/${lectureId}`,
+                method: "GET",
+            }),
+
+        })
     })
 });
 
 //hooks
-export const { useCreateCourseMutation, useCreatorCoursesQuery, useEditCourseMutation, useGetCourseByIdQuery, useCreateLectureMutation, useGetCourseLectureQuery, useEditLectureMutation, useRemoveLectureMutation, usePublishCourseMutation, useRemoveCourseMutation } = courseApi;
+export const { useCreateCourseMutation, useCreatorCoursesQuery, useEditCourseMutation, useGetCourseByIdQuery, useCreateLectureMutation, useGetCourseLectureQuery, useEditLectureMutation, useRemoveLectureMutation, usePublishCourseMutation, useRemoveCourseMutation, useGetLectureQuery } = courseApi;
