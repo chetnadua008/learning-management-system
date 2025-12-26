@@ -16,20 +16,13 @@ const CourseTab = () => {
     const params = useParams();     //app.jsx /course/:courseId same name to receive
     const courseId = params.courseId;
     //hook 
-    const [input, setInput] = useState({
-        courseTitle: "",
-        subTitle: "",
-        description: "",
-        category: "",
-        courseLevel: "",
-        coursePrice: "",
-        courseThumbnail: "",
-    });
+    const [input, setInput] = useState(null);           //never initialize state until actual course data arrive (the "" are cached and form doesnt update with new data)
+
     const { data: courseByIdData, isLoading: courseByIdIsLoading, isSuccess: courseByIdIsSuccess, refetch } = useGetCourseByIdQuery(courseId, { refetchOnMountOrArgChange: true });
     useEffect(() => {
         const course = courseByIdData?.course;
         if (course) {
-            setInput({
+            setInput({      //initialize when course data come
                 courseTitle: course.courseTitle,
                 subTitle: course.subTitle,
                 description: course.description,
@@ -43,7 +36,7 @@ const CourseTab = () => {
             }
         }
 
-    }, [courseByIdData, courseByIdIsSuccess])
+    }, [courseByIdData])
     const [publishCourse, { }] = usePublishCourseMutation();
     const [removeCourse, { data: removeData, isSuccess: removeIsSuccess, error: removeError }] = useRemoveCourseMutation();
     const [editCourse, { data, isLoading, isSuccess, error }] = useEditCourseMutation();
@@ -138,7 +131,7 @@ const CourseTab = () => {
     ]
 
     // const isPublish = true;
-    if (courseByIdIsLoading || !courseByIdData) {
+    if (!input) {
         return (
             <h1>Loading.....</h1>
         );
@@ -172,7 +165,7 @@ const CourseTab = () => {
                         <Input
                             type='text'
                             name='courseTitle'
-                            value={input.courseTitle}
+                            value={input.courseTitle ?? ""}
                             onChange={changeEventHandler}
                             placeholder='Ex. Full stack developer'
                         >
@@ -185,7 +178,7 @@ const CourseTab = () => {
                         <Input
                             type='text'
                             name='subTitle'
-                            value={input.subTitle}
+                            value={input.subTitle ?? ""}
                             onChange={changeEventHandler}
                             placeholder='become a full stack developer in 2 months from zero to hero'
                         >
@@ -195,7 +188,7 @@ const CourseTab = () => {
                         <Label>
                             Description
                         </Label>
-                        <RichTextEditor input={input} setInput={setInput} />
+                        <RichTextEditor key={courseId} input={input} setInput={setInput} />
                     </div>
                     <div className='flex items-center gap-5'>
                         <div>
@@ -237,7 +230,7 @@ const CourseTab = () => {
                             <Input
                                 type='number'
                                 name='coursePrice'
-                                value={input.coursePrice}
+                                value={input.coursePrice ?? ""}
                                 onChange={changeEventHandler}
                                 placeholder='299'
 
